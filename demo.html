@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configurador de Box — Demo</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f4f0;
+      --surface: #ffffff;
+      --border: rgba(0,0,0,0.12);
+      --border-strong: rgba(0,0,0,0.22);
+      --text-primary: #1a1a18;
+      --text-secondary: #6b6b66;
+      --text-muted: #9a9a94;
+      --accent: #1a1a18;
+      --accent-bg: #f0efe9;
+      --accent-active-bg: #1a1a18;
+      --accent-active-text: #ffffff;
+      --radius: 8px;
+      --radius-lg: 12px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #161614;
+        --surface: #1f1f1d;
+        --border: rgba(255,255,255,0.1);
+        --border-strong: rgba(255,255,255,0.2);
+        --text-primary: #e8e7e2;
+        --text-secondary: #9a9a94;
+        --text-muted: #6b6b66;
+        --accent: #e8e7e2;
+        --accent-bg: #2a2a28;
+        --accent-active-bg: #e8e7e2;
+        --accent-active-text: #1a1a18;
+      }
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 32px 16px;
+    }
+
+    .wrapper {
+      width: 100%;
+      max-width: 860px;
+    }
+
+    header {
+      margin-bottom: 28px;
+    }
+
+    header h1 {
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    header h2 {
+      font-size: 26px;
+      font-weight: 400;
+      color: var(--text-primary);
+      letter-spacing: -.01em;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+    }
+
+    .cfg {
+      display: flex;
+      gap: 32px;
+      align-items: flex-start;
+    }
+
+    @media (max-width: 600px) {
+      .cfg { flex-direction: column; }
+    }
+
+    .panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      min-width: 0;
+    }
+
+    .viz {
+      flex: 1.1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .section-title {
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    hr {
+      border: none;
+      border-top: 0.5px solid var(--border);
+    }
+
+    .opts {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .opt {
+      padding: 6px 14px;
+      border-radius: var(--radius);
+      border: 0.5px solid var(--border-strong);
+      cursor: pointer;
+      font-size: 13px;
+      font-family: 'Georgia', serif;
+      color: var(--text-secondary);
+      background: var(--accent-bg);
+      transition: all .15s;
+      user-select: none;
+    }
+
+    .opt:hover { border-color: var(--text-secondary); }
+
+    .opt.active {
+      background: var(--accent-active-bg);
+      color: var(--accent-active-text);
+      border-color: var(--accent-active-bg);
+    }
+
+    .field { display: flex; flex-direction: column; gap: 6px; }
+
+    .field-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .field-label span:first-child {
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-family: 'Georgia', serif;
+    }
+
+    .field-label .val {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text-primary);
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      letter-spacing: .02em;
+    }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 3px;
+      background: var(--border-strong);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      background: var(--text-primary);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: transform .1s;
+    }
+
+    input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+    .checks { display: flex; flex-direction: column; gap: 10px; }
+
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      font-size: 13px;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      color: var(--text-secondary);
+      user-select: none;
+    }
+
+    .check-row input[type=checkbox] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border: 0.5px solid var(--border-strong);
+      border-radius: 4px;
+      background: var(--accent-bg);
+      cursor: pointer;
+      position: relative;
+      flex-shrink: 0;
+      transition: all .15s;
+    }
+
+    .check-row input[type=checkbox]:checked {
+      background: var(--accent-active-bg);
+      border-color: var(--accent-active-bg);
+    }
+
+    .check-row input[type=checkbox]:checked::after {
+      content: '';
+      position: absolute;
+      left: 4px;
+      top: 2px;
+      width: 5px;
+      height: 8px;
+      border: 1.5px solid var(--accent-active-text);
+      border-top: none;
+      border-left: none;
+      transform: rotate(45deg);
+    }
+
+    .price-block { text-align: center; }
+
+    .price-amount {
+      font-size: 32px;
+      font-weight: 400;
+      font-family: 'Georgia', serif;
+      color: var(--text-primary);
+      letter-spacing: -.02em;
+      line-height: 1;
+    }
+
+    .price-note {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 6px;
+      font-family: 'Georgia', serif;
+      letter-spacing: .04em;
+    }
+
+    .dims-badge {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: 'Georgia', serif;
+      letter-spacing: .04em;
+      text-align: center;
+    }
+
+    footer {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: 'Georgia', serif;
+      letter-spacing: .04em;
+    }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+  <header>
+    <h1>Axesdog · Prototipo de configurador</h1>
+    <h2>Box de transporte para vehículos</h2>
+  </header>
+
+  <div class="card">
+    <div class="cfg">
+      <div class="panel">
+        <div>
+          <div class="section-title">Tipo de box</div>
+          <div class="opts">
+            <div class="opt active" onclick="setTipo('individual',this)">Individual</div>
+            <div class="opt" onclick="setTipo('doble',this)">Doble</div>
+          </div>
+        </div>
+        <hr>
+        <div>
+          <div class="section-title">Medidas</div>
+          <div class="field">
+            <div class="field-label">
+              <span>Ancho</span>
+              <span class="val" id="v-ancho">85 cm</span>
+            </div>
+            <input type="range" min="60" max="130" value="85" step="1" id="sl-ancho" oninput="update()">
+          </div>
+          <div class="field" style="margin-top:12px">
+            <div class="field-label">
+              <span>Fondo</span>
+              <span class="val" id="v-fondo">65 cm</span>
+            </div>
+            <input type="range" min="50" max="100" value="65" step="1" id="sl-fondo" oninput="update()">
+          </div>
+          <div class="field" style="margin-top:12px">
+            <div class="field-label">
+              <span>Alto</span>
+              <span class="val" id="v-alto">70 cm</span>
+            </div>
+            <input type="range" min="50" max="90" value="70" step="1" id="sl-alto" oninput="update()">
+          </div>
+        </div>
+        <hr>
+        <div>
+          <div class="section-title">Extras</div>
+          <div class="checks">
+            <label class="check-row"><input type="checkbox" id="ex-cajon" onchange="update()"> Cajón inferior</label>
+            <label class="check-row"><input type="checkbox" id="ex-vent" onchange="update()" checked> Ventilación lateral</label>
+            <label class="check-row"><input type="checkbox" id="ex-ant" onchange="update()"> Color antracita</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="viz">
+        <svg id="boxsvg" width="100%" viewBox="0 0 280 240" style="max-width:320px"></svg>
+        <div class="dims-badge" id="dims-badge">85 × 65 × 70 cm</div>
+        <div class="price-block">
+          <div class="price-amount" id="price-val">1.240 €</div>
+          <div class="price-note">Precio estimado · IVA no incluido</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>Demo visual · Los precios y medidas son orientativos</footer>
+</div>
+
+<script>
+let tipo = 'individual';
+
+function setTipo(t, el) {
+  tipo = t;
+  document.querySelectorAll('.opt').forEach(o => o.classList.remove('active'));
+  el.classList.add('active');
+  update();
+}
+
+function update() {
+  const ancho = +document.getElementById('sl-ancho').value;
+  const fondo = +document.getElementById('sl-fondo').value;
+  const alto  = +document.getElementById('sl-alto').value;
+  document.getElementById('v-ancho').textContent = ancho + ' cm';
+  document.getElementById('v-fondo').textContent = fondo + ' cm';
+  document.getElementById('v-alto').textContent  = alto  + ' cm';
+  document.getElementById('dims-badge').textContent = ancho + ' × ' + fondo + ' × ' + alto + ' cm';
+
+  const cajon = document.getElementById('ex-cajon').checked;
+  const vent  = document.getElementById('ex-vent').checked;
+  const ant   = document.getElementById('ex-ant').checked;
+
+  drawBox(ancho, fondo, alto, cajon, vent, ant);
+  calcPrice(ancho, fondo, alto, cajon, vent, ant);
+}
+
+function drawBox(ancho, fondo, alto, cajon, vent, ant) {
+  const svg = document.getElementById('boxsvg');
+  const W = 280, H = 240;
+  const pad = 28;
+
+  const maxA = 130, minA = 60;
+  const maxAl = 90, minAl = 50;
+  const nAncho = ((ancho - minA) / (maxA - minA)) * 0.55 + 0.45;
+  const nAlto  = ((alto - minAl) / (maxAl - minAl)) * 0.50 + 0.50;
+
+  const bw = Math.round((W - pad * 2) * nAncho);
+  const bh = Math.round((H - pad * 2 - (cajon ? 28 : 0)) * nAlto);
+  const bx = Math.round((W - bw) / 2);
+  const cajonH = cajon ? 24 : 0;
+  const by = H - pad - bh - cajonH;
+
+  const fill     = ant ? '#3a3a3a' : '#c8cdd4';
+  const fillDark = ant ? '#222'    : '#a0a5ac';
+  const fillTop  = ant ? '#444'    : '#b0b5bc';
+  const stroke   = ant ? '#555'    : '#8a9098';
+  const barColor = ant ? '#888'    : '#dde1e6';
+
+  const ox = 18, oy = -12;
+  let s = '';
+
+  // lateral
+  s += `<polygon points="${bx+bw},${by} ${bx+bw+ox},${by+oy} ${bx+bw+ox},${by+bh+oy} ${bx+bw},${by+bh}" fill="${fillDark}" stroke="${stroke}" stroke-width="1"/>`;
+  // top
+  s += `<polygon points="${bx},${by} ${bx+bw},${by} ${bx+bw+ox},${by+oy} ${bx+ox},${by+oy}" fill="${fillTop}" stroke="${stroke}" stroke-width="1"/>`;
+  // frente
+  s += `<rect x="${bx}" y="${by}" width="${bw}" height="${bh}" fill="${fill}" stroke="${stroke}" stroke-width="1.2" rx="2"/>`;
+
+  // divisor doble
+  if (tipo === 'doble') {
+    const dx = bx + Math.round(bw / 2);
+    s += `<line x1="${dx}" y1="${by+4}" x2="${dx}" y2="${by+bh-4}" stroke="${stroke}" stroke-width="2"/>`;
+  }
+
+  // puertas
+  const doors = tipo === 'doble' ? 2 : 1;
+  const doorW = Math.round((bw - 12 - (doors > 1 ? 4 : 0)) / doors);
+  for (let d = 0; d < doors; d++) {
+    const dx = bx + 6 + d * (doorW + 4);
+    const dy = by + 8;
+    const dh = bh - 16;
+    s += `<rect x="${dx}" y="${dy}" width="${doorW}" height="${dh}" fill="none" stroke="${stroke}" stroke-width="1" rx="1"/>`;
+    if (vent) {
+      const nbars = Math.max(3, Math.round(doorW / 10));
+      const gap = Math.round(doorW / (nbars + 1));
+      for (let i = 1; i <= nbars; i++) {
+        const bx2 = dx + i * gap;
+        s += `<line x1="${bx2}" y1="${dy+4}" x2="${bx2}" y2="${dy+dh-4}" stroke="${barColor}" stroke-width="2.5" stroke-linecap="round"/>`;
+      }
+    }
+    s += `<rect x="${dx + Math.round(doorW/2) - 4}" y="${dy + Math.round(dh/2) - 10}" width="8" height="20" rx="4" fill="${stroke}" opacity=".7"/>`;
+  }
+
+  // cajón
+  if (cajon) {
+    const cy = by + bh + 2;
+    s += `<rect x="${bx}" y="${cy}" width="${bw}" height="${cajonH - 2}" fill="${fillDark}" stroke="${stroke}" stroke-width="1" rx="1"/>`;
+    s += `<rect x="${bx + Math.round(bw/2) - 16}" y="${cy + Math.round((cajonH-2)/2) - 3}" width="32" height="6" rx="3" fill="${stroke}" opacity=".6"/>`;
+    s += `<polygon points="${bx+bw},${cy} ${bx+bw+ox},${cy+oy} ${bx+bw+ox},${cy+cajonH-2+oy} ${bx+bw},${cy+cajonH-2}" fill="${ant?'#1a1a1a':'#8a8f96'}" stroke="${stroke}" stroke-width="1"/>`;
+  }
+
+  // cotas
+  const lc = ant ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.2)';
+  const tc = ant ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.45)';
+  const totalH = bh + cajonH;
+
+  const cy2 = by + totalH + 14;
+  s += `<line x1="${bx}" y1="${cy2}" x2="${bx+bw}" y2="${cy2}" stroke="${lc}" stroke-width="0.5"/>`;
+  s += `<line x1="${bx}" y1="${cy2-3}" x2="${bx}" y2="${cy2+3}" stroke="${lc}" stroke-width="0.5"/>`;
+  s += `<line x1="${bx+bw}" y1="${cy2-3}" x2="${bx+bw}" y2="${cy2+3}" stroke="${lc}" stroke-width="0.5"/>`;
+  s += `<text x="${bx+bw/2}" y="${cy2+10}" text-anchor="middle" font-size="10" fill="${tc}" font-family="Georgia,serif">${ancho} cm</text>`;
+
+  const ax = bx - 14;
+  s += `<line x1="${ax}" y1="${by}" x2="${ax}" y2="${by+totalH}" stroke="${lc}" stroke-width="0.5"/>`;
+  s += `<line x1="${ax-3}" y1="${by}" x2="${ax+3}" y2="${by}" stroke="${lc}" stroke-width="0.5"/>`;
+  s += `<line x1="${ax-3}" y1="${by+totalH}" x2="${ax+3}" y2="${by+totalH}" stroke="${lc}" stroke-width="0.5"/>`;
+  s += `<text x="${ax-5}" y="${by + totalH/2}" text-anchor="middle" font-size="10" fill="${tc}" font-family="Georgia,serif" transform="rotate(-90,${ax-5},${by+totalH/2})">${alto} cm</text>`;
+
+  svg.innerHTML = s;
+}
+
+function calcPrice(ancho, fondo, alto, cajon, vent, ant) {
+  const base = tipo === 'doble' ? 900 : 650;
+  const vol = ancho * fondo * alto;
+  const volBase = 85 * 65 * 70;
+  const byVol = Math.round((vol / volBase) * base);
+  let total = byVol;
+  if (cajon) total += 180;
+  if (ant) total += 90;
+  document.getElementById('price-val').textContent = total.toLocaleString('es-ES') + ' €';
+}
+
+update();
+</script>
+</body>
+</html>
